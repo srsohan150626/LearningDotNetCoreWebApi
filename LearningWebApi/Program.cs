@@ -1,6 +1,7 @@
 using LearningWebApi.Configurations;
 using LearningWebApi.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -33,6 +34,8 @@ builder.Services.AddAuthentication(options =>
             ValidateLifetime = true,
         };
     });
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedEmail = false)
+            .AddEntityFrameworkStores<ApplicationDbContext>();
 // Add services to the container.
 
 builder.Services.AddControllers();
