@@ -69,6 +69,53 @@ namespace LearningWebApi.Controllers
             return BadRequest();
 
         }
+        [HttpPost]
+        [Route("Login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginRequestDto loginRequest)
+        {
+            if (ModelState.IsValid)
+            {
+                var existing_user = await _userManager.FindByEmailAsync(loginRequest.Email);
+                if(existing_user==null)
+                {
+                    return BadRequest(new AuthResult()
+                    {
+                        Result= false,
+                        Errors = new List<string>()
+                        {
+                            "Invalid Payload"
+                        }
+                    });
+                }
+                var isCorrect = await _userManager.CheckPasswordAsync(existing_user, loginRequest.Password);
+                if(!isCorrect)
+                {
+                    return BadRequest(new AuthResult()
+                    {
+                        Result = false,
+                        Errors = new List<string>()
+                        {
+                            "Invalid Payload"
+                        }
+                    });
+                }
+                var token = GenerateToken(existing_user);
+                return Ok(new AuthResult()
+                {
+                    Result = true,
+                    Token = token
+                });
+            }
+            return BadRequest(new AuthResult()
+            {
+                Result = false,
+                Errors = new List<string>()
+                {
+                  "Invalid Payload"
+                }
+            });
+        }
+         
 
         private string GenerateToken(IdentityUser user)
         {
